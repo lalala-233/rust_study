@@ -1,8 +1,14 @@
+#![allow(non_camel_case_types)]
+use project::{run, Config};
+use std::{env, process};
+
 fn main() {
-    let str = String::from("hello world!");
-    println!("{}", first_word(&str));
-    let _s = "Hello world";
-    println!("{}", &"123"[1..2]);
+    let args: Vec<String> = env::args().collect();
+    let config = Config::build(&args);
+    if let Err(e) = run(&config) {
+        eprintln!("文件错误: {e}");
+        process::exit(1);
+    };
 }
 fn first_word(s: &str) -> &str {
     let bytes = s.as_bytes();
