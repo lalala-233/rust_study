@@ -1,4 +1,4 @@
-struct Position {
+struct Coord {
     x: usize,
     y: usize,
 }
@@ -6,7 +6,24 @@ pub struct Map {
     ground: Vec<Vec<char>>,
 }
 // private
-impl Map {}
+impl Map {
+    fn size(&self) -> Coord {
+        /*
+        *****
+        *****
+        *****
+        *****
+        length=5
+        width=4
+         */
+        let length = self.ground[0].len();
+        let width = self.ground.len();
+        Coord {
+            x: length,
+            y: width,
+        }
+    }
+}
 // public
 impl Map {
     pub fn new(length: usize, width: usize) -> Self {
@@ -19,6 +36,13 @@ mod test {
     use super::*;
     mod private {
         use super::*;
+        #[test]
+        fn size() {
+            let map = Map::new(5, 4);
+            let size = map.size();
+            assert_eq!(size.x, 5);
+            assert_eq!(size.y, 4);
+        }
     }
     mod public {
         use super::*;
