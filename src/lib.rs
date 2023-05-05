@@ -33,18 +33,19 @@ impl Map {
 impl Map {
     // public
     pub fn coord(&self, x: usize, y: usize) -> Result<Coord, &'static str> {
-        if self.contain(&Coord { x, y }) {
-            /*
-            *****
-            *****
-            *P***
-            O****
+        /*
+        *****
+        *****
+        *P***
+        O****
 
-            p=(1,1)
-            actual=(1,(4-1)-1)=(1,2)
-             */
-            let x = x;
-            let y = self.size().y - y - 1;
+        p=(1,1)
+        actual=(1,(4-1)-1)=(1,2)
+         */
+        let x = x;
+        let y = self.size().y - y - 1;
+        let coord = Coord { x, y };
+        if self.contain(&coord) {
             Ok(Coord { x, y })
         } else {
             Err("")
