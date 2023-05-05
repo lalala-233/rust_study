@@ -1,5 +1,6 @@
 //use std::{env, process};
 
 fn main() {
-    let a = game::Map::new(10, 5);
+    let map = game::Map::new(10, 10);
+    let coord = map.coord(2, 3).unwrap();
 }
