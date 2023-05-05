@@ -9,6 +9,30 @@ impl Map {
         let y_max = size.y - 1;
         coord.x <= x_max && coord.y <= y_max
     }
+    fn get(&self, coord: &Coord) -> char {
+        /*
+        [*****]
+        [*****]
+        [*****]
+        [O****]
+        O=(0,0)
+        actual=(0,3)
+         */
+        // row first, column second
+        self.ground[coord.y][coord.x]
+    }
+    fn set(&mut self, coord: &Coord, target: char) {
+        /*
+        [*****]
+        [*****]
+        [*****]
+        [O****]
+        O=(0,0)
+        actual=(0,3)
+         */
+        // row first, column second
+        self.ground[coord.y][coord.x] = target;
+    }
     fn size(&self) -> Coord {
         /*
         *****
@@ -75,6 +99,17 @@ mod private {
         assert!(!map.contain(&can_not_contain));
     }
     #[test]
+    fn get_and_set() {
+        let mut map = Map::new(5, 4);
+        let coord = map.coord(2, 3).unwrap();
+        let value = map.get(&coord);
+        assert_eq!(value, ' ');
+
+        map.set(&coord, 'x');
+        let value = map.get(&coord);
+        assert_eq!(value, 'x');
+    }
+    #[test]
     fn size() {
         let map = Map::new(5, 4);
         let size = map.size();
@@ -86,7 +121,7 @@ mod private {
 mod public {
     use super::*;
     #[test]
-    fn coord() {
+    pub fn coord() {
         let map = Map::new(5, 4);
         /*
         **A**
@@ -107,7 +142,7 @@ mod public {
         assert_eq!(point_c.y, 1);
     }
     #[test]
-    fn new() {
+    pub fn new() {
         let map = Map::new(3, 2);
         let expect = vec![vec![' ', ' ', ' ']; 2];
         /*
