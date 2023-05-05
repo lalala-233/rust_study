@@ -1,12 +1,12 @@
-struct Coord {
+pub struct Coord {
     x: usize,
     y: usize,
 }
 pub struct Map {
     ground: Vec<Vec<char>>,
 }
-// private
 impl Map {
+    // private
     fn contain(&self, coord: &Coord) -> bool {
         let size = &self.size();
         let x_max = size.x - 1;
@@ -30,8 +30,26 @@ impl Map {
         }
     }
 }
-// public
 impl Map {
+    // public
+    pub fn coord(&self, x: usize, y: usize) -> Result<Coord, &'static str> {
+        if self.contain(&Coord { x, y }) {
+            /*
+            *****
+            *****
+            *P***
+            O****
+
+            p=(1,1)
+            actual=(1,(4-1)-1)=(1,2)
+             */
+            let x = x;
+            let y = self.size().y - y - 1;
+            Ok(Coord { x, y })
+        } else {
+            Err("")
+        }
+    }
     pub fn new(length: usize, width: usize) -> Self {
         let ground = vec![vec![' '; length]; width];
         Map { ground }
@@ -71,6 +89,27 @@ mod test {
     }
     mod public {
         use super::*;
+        #[test]
+        fn coord() {
+            let map = Map::new(5, 4);
+            /*
+            **A**
+            C****
+            *****
+            O***B
+             */
+            let A = map.coord(2, 3).unwrap();
+            let B = map.coord(4, 0).unwrap();
+            let C = map.coord(0, 2).unwrap();
+
+            assert_eq!(A.x, 2);
+            assert_eq!(B.x, 4);
+            assert_eq!(C.x, 0);
+
+            assert_eq!(A.y, 0);
+            assert_eq!(B.y, 3);
+            assert_eq!(C.y, 1);
+        }
         #[test]
         fn new() {
             let map = Map::new(3, 2);
