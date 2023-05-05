@@ -7,12 +7,18 @@ pub struct Map {
 }
 // private
 impl Map {
+    fn contain(&self, coord: &Coord) -> bool {
+        let size = &self.size();
+        let x_max = size.x - 1;
+        let y_max = size.y - 1;
+        coord.x <= x_max && coord.y <= y_max
+    }
     fn size(&self) -> Coord {
         /*
         *****
         *****
         *****
-        *****
+        O****
         length=5
         width=4
          */
@@ -36,6 +42,25 @@ mod test {
     use super::*;
     mod private {
         use super::*;
+        #[test]
+        fn contain() {
+            let map = Map::new(5, 4);
+            /*
+            ****p
+            *****
+            *****
+            O****
+            p=(4,3)
+             */
+            let can_contain = Coord { x: 4, y: 3 };
+            assert!(map.contain(&can_contain));
+            let can_not_contain = Coord { x: 5, y: 3 };
+            assert!(!map.contain(&can_not_contain));
+            let can_not_contain = Coord { x: 3, y: 4 };
+            assert!(!map.contain(&can_not_contain));
+            let can_not_contain = Coord { x: 5, y: 4 };
+            assert!(!map.contain(&can_not_contain));
+        }
         #[test]
         fn size() {
             let map = Map::new(5, 4);
