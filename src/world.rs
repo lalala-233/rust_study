@@ -35,22 +35,6 @@ impl World {
         // row first, column second
         self.ground[coord.y][coord.x] = target;
     }
-    fn size(&self) -> Coord {
-        /*
-        *****
-        *****
-        *****
-        O****
-        length=5
-        width=4
-         */
-        let length = self.ground[0].len();
-        let width = self.ground.len();
-        Coord {
-            x: length,
-            y: width,
-        }
-    }
 }
 impl World {
     // public
@@ -94,8 +78,22 @@ impl World {
             }
             row.push(line);
         }
-        Self {
-            ground: row,
+        Self { ground: row }
+    }
+    pub fn size(&self) -> Coord {
+        /*
+        *****
+        *****
+        *****
+        O****
+        length=5
+        width=4
+         */
+        let length = self.ground[0].len();
+        let width = self.ground.len();
+        Coord {
+            x: length,
+            y: width,
         }
     }
 }
@@ -126,18 +124,12 @@ mod private {
         let mut world = World::new(5, 4);
         let coord = world.coord(2, 3).unwrap();
         let value = world.get(&coord);
+        world.set(&coord, ' ');
         assert_eq!(value, ' ');
 
         world.set(&coord, 'x');
         let value = world.get(&coord);
         assert_eq!(value, 'x');
-    }
-    #[test]
-    fn size() {
-        let world = World::new(5, 4);
-        let size = world.size();
-        assert_eq!(size.x, 5);
-        assert_eq!(size.y, 4);
     }
 }
 #[cfg(test)]
@@ -174,9 +166,42 @@ mod public {
         assert_eq!(world.ground.len(), 2);
         assert_eq!(world.ground[0].len(), 3);
     }
+    #[test]
+    pub fn size() {
+        let world = World::new(5, 4);
+        let size = world.size();
+        assert_eq!(size.x, 5);
+        assert_eq!(size.y, 4);
+    }
 }
 
 pub struct Coord {
     x: usize,
     y: usize,
+}
+impl Coord {
+    pub fn x(&self) -> usize {
+        self.x
+    }
+    pub fn y(&self) -> usize {
+        self.y
+    }
+}
+#[cfg(test)]
+mod coord {
+    use super::Coord;
+    #[test]
+    pub fn x() {
+        let x = 5;
+        let y = 4;
+        let coord = Coord { x, y };
+        assert_eq!(x, coord.x());
+    }
+    #[test]
+    pub fn y() {
+        let x = 5;
+        let y = 4;
+        let coord = Coord { x, y };
+        assert_eq!(y, coord.y());
+    }
 }
