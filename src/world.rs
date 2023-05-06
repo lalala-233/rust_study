@@ -6,12 +6,6 @@ pub struct World {
 }
 impl World {
     // private
-    fn contain(&self, coord: &coord::Coord) -> bool {
-        let size = &self.size();
-        let x_max = size.x() - 1;
-        let y_max = size.y() - 1;
-        coord.x() <= x_max && coord.y() <= y_max
-    }
     fn get(&self, coord: &coord::Coord) -> char {
         /*
         [*****]
@@ -39,23 +33,30 @@ impl World {
 }
 impl World {
     // public
+    pub fn contain(&self, coord: &coord::Coord) -> bool {
+        let size = &self.size();
+        let x_max = size.x() - 1;
+        let y_max = size.y() - 1;
+        coord.x() <= x_max && coord.y() <= y_max
+    }
     pub fn coord(&self, x: usize, y: usize) -> Result<coord::Coord, &'static str> {
         /*
         *****
+        **P**
         *****
-        *P***
         O****
 
-        p=(1,1)
-        actual=(1,(4-1)-1)=(1,2)
+        p=(2,2)
+        actual=(2,(4-1)-2)=(1,1)
          */
-        let x = x;
-        let y = self.size().y() - y - 1;
         let coord = coord::Coord::new(x, y);
         if self.contain(&coord) {
+            let x = x;
+            let y = (self.size().y() - 1) - y;
+            let coord = coord::Coord::new(x, y);
             Ok(coord)
         } else {
-            Err("")
+            Err("坐标在世界外！")
         }
     }
     pub fn new(length: usize, width: usize) -> Self {
@@ -99,25 +100,6 @@ impl World {
 mod private {
     use super::*;
     #[test]
-    fn contain() {
-        let world = World::new(5, 4);
-        /*
-        ****p
-        *****
-        *****
-        O****
-        p=(4,3)
-         */
-        let can_contain = coord::Coord::new(4, 3);
-        assert!(world.contain(&can_contain));
-        let can_not_contain = coord::Coord::new(5, 3);
-        assert!(!world.contain(&can_not_contain));
-        let can_not_contain = coord::Coord::new(3, 4);
-        assert!(!world.contain(&can_not_contain));
-        let can_not_contain = coord::Coord::new(5, 4);
-        assert!(!world.contain(&can_not_contain));
-    }
-    #[test]
     fn get_and_set() {
         let mut world = World::new(5, 4);
         let coord = world.coord(2, 3).unwrap();
@@ -138,22 +120,39 @@ mod public {
     pub fn coord() {
         let world = World::new(5, 4);
         /*
-        **A**
-        C****
+        ****C
         *****
-        O***B
+        *****
+        O****
          */
-        let point_a = world.coord(2, 3).unwrap();
-        let point_b = world.coord(4, 0).unwrap();
-        let point_c = world.coord(0, 2).unwrap();
-
-        assert_eq!(point_a.x(), 2);
-        assert_eq!(point_b.x(), 4);
-        assert_eq!(point_c.x(), 0);
-
-        assert_eq!(point_a.y(), 0);
-        assert_eq!(point_b.y(), 3);
-        assert_eq!(point_c.y(), 1);
+        let coord = world.coord(4, 3).unwrap();
+        assert_eq!(coord.x(), 4);
+        assert_eq!(coord.y(), 0);
+        let coord = world.coord(5, 3);
+        assert!(coord.is_err());
+        let coord = world.coord(4, 4);
+        assert!(coord.is_err());
+        let coord = world.coord(5, 4);
+        assert!(coord.is_err());
+    }
+    #[test]
+    pub fn contain() {
+        let world = World::new(5, 4);
+        /*
+        ****p
+        *****
+        *****
+        O****
+        p=(4,3)
+         */
+        let can_contain = coord::Coord::new(4, 3);
+        assert!(world.contain(&can_contain));
+        let can_not_contain = coord::Coord::new(5, 3);
+        assert!(!world.contain(&can_not_contain));
+        let can_not_contain = coord::Coord::new(3, 4);
+        assert!(!world.contain(&can_not_contain));
+        let can_not_contain = coord::Coord::new(5, 4);
+        assert!(!world.contain(&can_not_contain));
     }
     #[test]
     pub fn new() {
