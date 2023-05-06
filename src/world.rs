@@ -1,7 +1,9 @@
-pub struct Map {
+use rand::Rng;
+
+pub struct World {
     ground: Vec<Vec<char>>,
 }
-impl Map {
+impl World {
     // private
     fn contain(&self, coord: &Coord) -> bool {
         let size = &self.size();
@@ -50,7 +52,7 @@ impl Map {
         }
     }
 }
-impl Map {
+impl World {
     // public
     pub fn coord(&self, x: usize, y: usize) -> Result<Coord, &'static str> {
         /*
@@ -72,8 +74,29 @@ impl Map {
         }
     }
     pub fn new(length: usize, width: usize) -> Self {
-        let ground = vec![vec![' '; length]; width];
-        Map { ground }
+        /*
+        [[*****],
+        [*****],
+        [*****],
+        [O****]]
+        width=4
+        0..4=[0,1,2,3]
+         */
+        let mut row = Vec::new();
+        for _y in 0..width {
+            let mut line = Vec::new();
+            for _x in 0..length {
+                if rand::thread_rng().gen_bool(0.1) {
+                    line.push('A');
+                } else {
+                    line.push(' ');
+                }
+            }
+            row.push(line);
+        }
+        Self {
+            ground: row,
+        }
     }
 }
 #[cfg(test)]
@@ -81,7 +104,7 @@ mod private {
     use super::*;
     #[test]
     fn contain() {
-        let map = Map::new(5, 4);
+        let world = World::new(5, 4);
         /*
         ****p
         *****
@@ -90,29 +113,29 @@ mod private {
         p=(4,3)
          */
         let can_contain = Coord { x: 4, y: 3 };
-        assert!(map.contain(&can_contain));
+        assert!(world.contain(&can_contain));
         let can_not_contain = Coord { x: 5, y: 3 };
-        assert!(!map.contain(&can_not_contain));
+        assert!(!world.contain(&can_not_contain));
         let can_not_contain = Coord { x: 3, y: 4 };
-        assert!(!map.contain(&can_not_contain));
+        assert!(!world.contain(&can_not_contain));
         let can_not_contain = Coord { x: 5, y: 4 };
-        assert!(!map.contain(&can_not_contain));
+        assert!(!world.contain(&can_not_contain));
     }
     #[test]
     fn get_and_set() {
-        let mut map = Map::new(5, 4);
-        let coord = map.coord(2, 3).unwrap();
-        let value = map.get(&coord);
+        let mut world = World::new(5, 4);
+        let coord = world.coord(2, 3).unwrap();
+        let value = world.get(&coord);
         assert_eq!(value, ' ');
 
-        map.set(&coord, 'x');
-        let value = map.get(&coord);
+        world.set(&coord, 'x');
+        let value = world.get(&coord);
         assert_eq!(value, 'x');
     }
     #[test]
     fn size() {
-        let map = Map::new(5, 4);
-        let size = map.size();
+        let world = World::new(5, 4);
+        let size = world.size();
         assert_eq!(size.x, 5);
         assert_eq!(size.y, 4);
     }
@@ -122,16 +145,16 @@ mod public {
     use super::*;
     #[test]
     pub fn coord() {
-        let map = Map::new(5, 4);
+        let world = World::new(5, 4);
         /*
         **A**
         C****
         *****
         O***B
          */
-        let point_a = map.coord(2, 3).unwrap();
-        let point_b = map.coord(4, 0).unwrap();
-        let point_c = map.coord(0, 2).unwrap();
+        let point_a = world.coord(2, 3).unwrap();
+        let point_b = world.coord(4, 0).unwrap();
+        let point_c = world.coord(0, 2).unwrap();
 
         assert_eq!(point_a.x, 2);
         assert_eq!(point_b.x, 4);
@@ -143,13 +166,13 @@ mod public {
     }
     #[test]
     pub fn new() {
-        let map = Map::new(3, 2);
-        let expect = vec![vec![' ', ' ', ' ']; 2];
+        let world = World::new(3, 2);
         /*
         [[x,x,x],
         [x,x,x]]
          */
-        assert_eq!(map.ground, expect);
+        assert_eq!(world.ground.len(), 2);
+        assert_eq!(world.ground[0].len(), 3);
     }
 }
 
