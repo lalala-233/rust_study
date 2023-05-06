@@ -1,3 +1,4 @@
+use crate::coord;
 use rand::Rng;
 
 pub struct World {
@@ -5,13 +6,13 @@ pub struct World {
 }
 impl World {
     // private
-    fn contain(&self, coord: &Coord) -> bool {
+    fn contain(&self, coord: &coord::Coord) -> bool {
         let size = &self.size();
-        let x_max = size.x - 1;
-        let y_max = size.y - 1;
-        coord.x <= x_max && coord.y <= y_max
+        let x_max = size.x() - 1;
+        let y_max = size.y() - 1;
+        coord.x() <= x_max && coord.y() <= y_max
     }
-    fn get(&self, coord: &Coord) -> char {
+    fn get(&self, coord: &coord::Coord) -> char {
         /*
         [*****]
         [*****]
@@ -21,9 +22,9 @@ impl World {
         actual=(0,3)
          */
         // row first, column second
-        self.ground[coord.y][coord.x]
+        self.ground[coord.y()][coord.x()]
     }
-    fn set(&mut self, coord: &Coord, target: char) {
+    fn set(&mut self, coord: &coord::Coord, target: char) {
         /*
         [*****]
         [*****]
@@ -33,12 +34,12 @@ impl World {
         actual=(0,3)
          */
         // row first, column second
-        self.ground[coord.y][coord.x] = target;
+        self.ground[coord.y()][coord.x()] = target;
     }
 }
 impl World {
     // public
-    pub fn coord(&self, x: usize, y: usize) -> Result<Coord, &'static str> {
+    pub fn coord(&self, x: usize, y: usize) -> Result<coord::Coord, &'static str> {
         /*
         *****
         *****
@@ -49,10 +50,10 @@ impl World {
         actual=(1,(4-1)-1)=(1,2)
          */
         let x = x;
-        let y = self.size().y - y - 1;
-        let coord = Coord { x, y };
+        let y = self.size().y() - y - 1;
+        let coord = coord::Coord::new(x, y);
         if self.contain(&coord) {
-            Ok(Coord { x, y })
+            Ok(coord)
         } else {
             Err("")
         }
@@ -80,7 +81,7 @@ impl World {
         }
         Self { ground: row }
     }
-    pub fn size(&self) -> Coord {
+    pub fn size(&self) -> coord::Coord {
         /*
         *****
         *****
@@ -91,10 +92,7 @@ impl World {
          */
         let length = self.ground[0].len();
         let width = self.ground.len();
-        Coord {
-            x: length,
-            y: width,
-        }
+        coord::Coord::new(length, width)
     }
 }
 #[cfg(test)]
@@ -110,21 +108,22 @@ mod private {
         O****
         p=(4,3)
          */
-        let can_contain = Coord { x: 4, y: 3 };
+        let can_contain = coord::Coord::new(4, 3);
         assert!(world.contain(&can_contain));
-        let can_not_contain = Coord { x: 5, y: 3 };
+        let can_not_contain = coord::Coord::new(5, 3);
         assert!(!world.contain(&can_not_contain));
-        let can_not_contain = Coord { x: 3, y: 4 };
+        let can_not_contain = coord::Coord::new(3, 4);
         assert!(!world.contain(&can_not_contain));
-        let can_not_contain = Coord { x: 5, y: 4 };
+        let can_not_contain = coord::Coord::new(5, 4);
         assert!(!world.contain(&can_not_contain));
     }
     #[test]
     fn get_and_set() {
         let mut world = World::new(5, 4);
         let coord = world.coord(2, 3).unwrap();
-        let value = world.get(&coord);
+
         world.set(&coord, ' ');
+        let value = world.get(&coord);
         assert_eq!(value, ' ');
 
         world.set(&coord, 'x');
@@ -148,13 +147,13 @@ mod public {
         let point_b = world.coord(4, 0).unwrap();
         let point_c = world.coord(0, 2).unwrap();
 
-        assert_eq!(point_a.x, 2);
-        assert_eq!(point_b.x, 4);
-        assert_eq!(point_c.x, 0);
+        assert_eq!(point_a.x(), 2);
+        assert_eq!(point_b.x(), 4);
+        assert_eq!(point_c.x(), 0);
 
-        assert_eq!(point_a.y, 0);
-        assert_eq!(point_b.y, 3);
-        assert_eq!(point_c.y, 1);
+        assert_eq!(point_a.y(), 0);
+        assert_eq!(point_b.y(), 3);
+        assert_eq!(point_c.y(), 1);
     }
     #[test]
     pub fn new() {
@@ -170,38 +169,7 @@ mod public {
     pub fn size() {
         let world = World::new(5, 4);
         let size = world.size();
-        assert_eq!(size.x, 5);
-        assert_eq!(size.y, 4);
-    }
-}
-
-pub struct Coord {
-    x: usize,
-    y: usize,
-}
-impl Coord {
-    pub fn x(&self) -> usize {
-        self.x
-    }
-    pub fn y(&self) -> usize {
-        self.y
-    }
-}
-#[cfg(test)]
-mod coord {
-    use super::Coord;
-    #[test]
-    pub fn x() {
-        let x = 5;
-        let y = 4;
-        let coord = Coord { x, y };
-        assert_eq!(x, coord.x());
-    }
-    #[test]
-    pub fn y() {
-        let x = 5;
-        let y = 4;
-        let coord = Coord { x, y };
-        assert_eq!(y, coord.y());
+        assert_eq!(size.x(), 5);
+        assert_eq!(size.y(), 4);
     }
 }
