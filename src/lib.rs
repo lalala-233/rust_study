@@ -1,7 +1,11 @@
 mod coord;
+pub use coord::Coord;
 
-pub mod world;
+mod world;
 pub use world::World;
 
-pub mod player;
+mod player;
 pub use player::Player;
+
+pub mod game;
+pub use crate::game::Game;

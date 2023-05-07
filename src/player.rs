@@ -1,20 +1,15 @@
-use crate::coord;
-use crate::World;
+use super::*;
 use rand::Rng;
 
-pub struct Player<'a> {
-    coord: coord::Coord,
-    world: &'a World,
+pub struct Player {
+    coord: Coord,
 }
-impl<'a> Player<'a> {
-    //private
-}
-impl<'a> Player<'a> {
+impl Player {
     //public
-    pub fn coord(&self) -> &coord::Coord {
+    pub fn coord(&self) -> &Coord {
         &self.coord
     }
-    pub fn new(world: &'a World) -> Self {
+    pub fn new(size: &Coord) -> Self {
         /*
         *****
         *****
@@ -23,20 +18,10 @@ impl<'a> Player<'a> {
         size.x()=5
         so use 0..5
          */
-        let size = world.size();
         let x = rand::thread_rng().gen_range(0..size.x());
         let y = rand::thread_rng().gen_range(0..size.y());
-        let coord = coord::Coord::new(x, y);
-        Self { coord, world }
-    }
-    pub fn set(&mut self, x: usize, y: usize) -> Result<(), &'static str> {
-        let coord = coord::Coord::new(x, y);
-        if self.world.contain(&coord) {
-            self.coord = coord;
-            Ok(())
-        } else {
-            Err("坐标在世界外！")
-        }
+        let coord = Coord::new(x, y);
+        Self { coord }
     }
 }
 #[cfg(test)]
@@ -46,26 +31,20 @@ mod private {
 #[cfg(test)]
 mod public {
     use super::*;
-    #[test]
-    pub fn coord_and_set() {
-        let world = World::new(5, 4);
-        let mut player = Player::new(&world);
-        let x = world.size().x() - 1;
-        let y = world.size().y() - 1;
 
-        assert!(player.set(x, y).is_ok());
-        assert_eq!(player.coord.x(), x);
-        assert_eq!(player.coord.y(), y);
-        // Err
-        assert!(player.set(x + 1, y).is_err());
-        assert!(player.set(x, y + 1).is_err());
-        assert!(player.set(x + 1, y + 1).is_err());
-        assert_eq!(player.coord.x(), x);
-        assert_eq!(player.coord.y(), y);
+    #[test]
+    pub fn coord() {
+        let world = World::new(5, 4);
+        let player = Player::new(&world.size());
+        let coord = player.coord();
+        assert!(world.contain(coord));
+        assert_eq!(coord.x(), player.coord.x());
+        assert_eq!(coord.y(), player.coord.y());
     }
+
     #[test]
     pub fn new() {
         let world = World::new(100, 50);
-        let _player = Player::new(&world);
+        let _player = Player::new(&world.size());
     }
 }
