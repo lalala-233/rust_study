@@ -1,4 +1,4 @@
-use crate::coord::Coord;
+use crate::Coord;
 use rand::Rng;
 
 pub struct World {
