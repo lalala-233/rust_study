@@ -28,13 +28,8 @@ impl Player {
     }
 }
 #[cfg(test)]
-mod private {
-    use super::*;
-}
-#[cfg(test)]
 mod public {
     use super::*;
-
     #[test]
     pub fn coord() {
         let world = World::new(5, 4);

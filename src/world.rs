@@ -1,4 +1,4 @@
-use crate::Coord;
+use super::*;
 use rand::Rng;
 
 pub struct World {
@@ -6,16 +6,7 @@ pub struct World {
 }
 impl World {
     // private
-}
-impl World {
-    // public
-    pub fn contain(&self, coord: &Coord) -> bool {
-        let size = &self.size();
-        let x_max = size.x() - 1;
-        let y_max = size.y() - 1;
-        coord.x() <= x_max && coord.y() <= y_max
-    }
-    pub fn coord(&self, x: usize, y: usize) -> Result<Coord, &'static str> {
+    fn coord(&self, x: usize, y: usize) -> Result<Coord, &'static str> {
         /*
         *****
         **P**
@@ -35,7 +26,7 @@ impl World {
             Err("坐标在世界外！")
         }
     }
-    pub fn get(&self, coord: &Coord) -> char {
+    fn get(&self, coord: &Coord) -> char {
         /*
         [*****]
         [*****]
@@ -47,8 +38,27 @@ impl World {
         // row first, column second
         self.ground[coord.y()][coord.x()]
     }
-    pub fn ground(&self) -> &Vec<Vec<char>> {
+    fn ground(&self) -> &Vec<Vec<char>> {
         &self.ground
+    }
+    fn set(&mut self, coord: &Coord, target: char) {
+        /*
+        [*****]
+        [*****]
+        [*****]
+        [O****]
+        O=(0,0)
+        actual=(0,3)
+         */
+        // row first, column second
+        self.ground[coord.y()][coord.x()] = target;
+    }
+    // public
+    pub fn contain(&self, coord: &Coord) -> bool {
+        let size = &self.size();
+        let x_max = size.x() - 1;
+        let y_max = size.y() - 1;
+        coord.x() <= x_max && coord.y() <= y_max
     }
     pub fn new(length: usize, width: usize) -> Self {
         /*
@@ -73,18 +83,6 @@ impl World {
         }
         Self { ground: row }
     }
-    pub fn set(&mut self, coord: &Coord, target: char) {
-        /*
-        [*****]
-        [*****]
-        [*****]
-        [O****]
-        O=(0,0)
-        actual=(0,3)
-         */
-        // row first, column second
-        self.ground[coord.y()][coord.x()] = target;
-    }
     pub fn size(&self) -> Coord {
         /*
         *****
@@ -102,12 +100,8 @@ impl World {
 #[cfg(test)]
 mod private {
     use super::*;
-}
-#[cfg(test)]
-mod public {
-    use super::*;
     #[test]
-    pub fn coord() {
+    fn coord() {
         let world = World::new(5, 4);
         /*
         ****C
@@ -115,7 +109,9 @@ mod public {
         *****
         O****
          */
-        let coord = world.coord(4, 3).unwrap();
+        let coord = world.coord(4, 3);
+        assert!(coord.is_ok());
+        let coord = coord.unwrap();
         assert_eq!(coord.x(), 4);
         assert_eq!(coord.y(), 0);
         let coord = world.coord(5, 3);
@@ -125,6 +121,28 @@ mod public {
         let coord = world.coord(5, 4);
         assert!(coord.is_err());
     }
+    #[test]
+    fn get_and_set() {
+        let mut world = World::new(5, 4);
+        let coord = world.coord(2, 3).unwrap();
+
+        world.set(&coord, ' ');
+        let value = world.get(&coord);
+        assert_eq!(value, ' ');
+
+        world.set(&coord, 'x');
+        let value = world.get(&coord);
+        assert_eq!(value, 'x');
+    }
+    #[test]
+    fn ground() {
+        let world = World::new(5, 4);
+        assert_eq!(world.ground(), &world.ground);
+    }
+}
+#[cfg(test)]
+mod public {
+    use super::*;
     #[test]
     pub fn contain() {
         let world = World::new(5, 4);
@@ -143,24 +161,6 @@ mod public {
         assert!(!world.contain(&can_not_contain));
         let can_not_contain = Coord::new(5, 4);
         assert!(!world.contain(&can_not_contain));
-    }
-    #[test]
-    pub fn get_and_set() {
-        let mut world = World::new(5, 4);
-        let coord = world.coord(2, 3).unwrap();
-
-        world.set(&coord, ' ');
-        let value = world.get(&coord);
-        assert_eq!(value, ' ');
-
-        world.set(&coord, 'x');
-        let value = world.get(&coord);
-        assert_eq!(value, 'x');
-    }
-    #[test]
-    pub fn ground() {
-        let world = World::new(5, 4);
-        assert_eq!(world.ground(), &world.ground);
     }
     #[test]
     pub fn new() {
