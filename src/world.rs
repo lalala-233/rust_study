@@ -6,7 +6,7 @@ pub struct World {
 }
 impl World {
     // private
-    fn coord(&self, x: usize, y: usize) -> Result<Coord, &'static str> {
+    fn convert(&self, coord: &Coord) -> Coord {
         /*
         *****
         **P**
@@ -14,13 +14,16 @@ impl World {
         O****
 
         p=(2,2)
-        actual=(2,(4-1)-2)=(1,1)
+        actual=(2,(4-1)-2)=(2,1)
          */
+        let x = coord.x();
+        let y = (self.size().y() - 1) - coord.y();
+        Coord::new(x, y)
+    }
+    fn coord(&self, x: usize, y: usize) -> Result<Coord, &'static str> {
         let coord = Coord::new(x, y);
         if self.contain(&coord) {
-            let x = x;
-            let y = (self.size().y() - 1) - y;
-            let coord = Coord::new(x, y);
+            let coord = self.convert(&coord);
             Ok(coord)
         } else {
             Err("坐标在世界外！")
@@ -101,6 +104,19 @@ impl World {
 mod private {
     use super::*;
     #[test]
+    fn convert() {
+        /*
+        *****
+        ***P*
+        *****
+        O****
+         */
+        let world = World::new(5, 4);
+        let coord = Coord::new(3, 2);
+        let coord = world.convert(&coord);
+        assert_eq!(coord.x_y(),(3,1));
+    }
+    #[test]
     fn coord() {
         let world = World::new(5, 4);
         /*
@@ -112,8 +128,7 @@ mod private {
         let coord = world.coord(4, 3);
         assert!(coord.is_ok());
         let coord = coord.unwrap();
-        assert_eq!(coord.x(), 4);
-        assert_eq!(coord.y(), 0);
+        assert_eq!(coord.x_y(), (4, 0));
         let coord = world.coord(5, 3);
         assert!(coord.is_err());
         let coord = world.coord(4, 4);
@@ -174,9 +189,9 @@ mod public {
     }
     #[test]
     pub fn size() {
-        let world = World::new(5, 4);
+        let (length, width) = (5, 4);
+        let world = World::new(length, width);
         let size = world.size();
-        assert_eq!(size.x(), 5);
-        assert_eq!(size.y(), 4);
+        assert_eq!(size.x_y(), (length, width));
     }
 }

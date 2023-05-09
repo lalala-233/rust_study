@@ -9,6 +9,9 @@ impl Coord {
     pub fn x(&self) -> usize {
         self.x
     }
+    pub fn x_y(&self) -> (usize, usize) {
+        (self.x, self.y)
+    }
     pub fn y(&self) -> usize {
         self.y
     }
@@ -21,8 +24,7 @@ mod public {
         let x = 5;
         let y = 4;
         let coord = Coord::new(x, y);
-        assert_eq!(coord.x(), x);
-        assert_eq!(coord.y(), y);
+        assert_eq!(coord.x_y(), (x, y));
     }
     #[test]
     pub fn x() {
@@ -30,6 +32,16 @@ mod public {
         let y = 4;
         let coord = Coord { x, y };
         assert_eq!(x, coord.x());
+    }
+    #[test]
+    pub fn x_y() {
+        let x = 5;
+        let y = 10;
+        let coord = Coord::new(x, y);
+        let x_y = coord.x_y();
+        assert_eq!(x_y, (x, y));
+        assert_eq!(x_y.0, coord.x());
+        assert_eq!(x_y.1, coord.y());
     }
     #[test]
     pub fn y() {

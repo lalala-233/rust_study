@@ -36,8 +36,7 @@ mod public {
         let player = Player::new(&world.size());
         let coord = player.coord();
         assert!(world.contain(coord));
-        assert_eq!(coord.x(), player.coord.x());
-        assert_eq!(coord.y(), player.coord.y());
+        assert_eq!(coord.x_y(), player.coord.x_y());
     }
     #[test]
     pub fn new() {
@@ -53,7 +52,6 @@ mod public {
         let y = rand::thread_rng().gen_range(0..size.y());
         let coord = Coord::new(x, y);
         player.set_coord(coord);
-        assert_eq!(player.coord.x(), x);
-        assert_eq!(player.coord.y(), y);
+        assert_eq!(player.coord.x_y(), (x, y));
     }
 }
