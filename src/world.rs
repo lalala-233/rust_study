@@ -57,6 +57,97 @@ impl World {
         self.ground[coord.y()][coord.x()] = target;
     }
     // public
+    pub fn camera(&self, origin: &Coord, radius_x: usize, radius_y: usize) -> Vec<Vec<char>> {
+        let (x, y) = origin.x_y();
+        let size = self.size();
+        /*
+        **T**
+        *****
+        L*P*R
+        *****
+        O*B**
+         */
+        let left_bottom = |value, radius| {
+            if value < radius {
+                (0, radius - value)
+            } else {
+                (value - radius, 0)
+            }
+        };
+        let (left, left_extension) = left_bottom(x, radius_x);
+        let (bottom, bottom_extension) = left_bottom(y, radius_y);
+
+        let right_top = |value, radius, size| {
+            if value + radius < size {
+                (value + radius, 0)
+            } else {
+                /*
+                x=value+radius=5
+                size=5
+                ****SX
+                 */
+                (size - 1, value + radius - (size - 1))
+            }
+        };
+        let (right, right_extension) = right_top(x, radius_x, size.x());
+        let (top, top_extension) = right_top(y, radius_y, size.y());
+        /*
+        map top to bottom
+        actual:
+        B***
+        ****
+        ****
+        T***
+
+        map:
+        T***
+        ****
+        ****
+        B***
+         */
+        let (top, bottom) = (bottom, top);
+        let (top_extension, bottom_extension) = (bottom_extension, top_extension);
+
+        let mut camera = Vec::new();
+
+        //generate from top to bottom
+        for line in self.ground[top..=bottom].iter() {
+            let line = line[left..=right].to_owned();
+            camera.push(line);
+        }
+        //generate spaces
+        if top_extension > 0 {
+            camera.splice(
+                0..0,
+                vec![vec![' '; camera[0].len()]; top_extension]
+                    .iter()
+                    .cloned(),
+            );
+        }
+        if bottom_extension > 0 {
+            camera.splice(
+                camera.len()..camera.len(),
+                vec![vec![' '; camera[0].len()]; bottom_extension]
+                    .iter()
+                    .cloned(),
+            );
+        }
+        if left_extension > 0 {
+            for line in &mut camera {
+                line.splice(0..0, vec![' '; left_extension].iter().cloned());
+            }
+        }
+        if right_extension > 0 {
+            for line in &mut camera {
+                line.splice(
+                    line.len()..line.len(),
+                    vec![' '; right_extension].iter().cloned(),
+                );
+            }
+        }
+
+        camera
+    }
     pub fn contain(&self, coord: &Coord) -> bool {
         let size = &self.size();
         let x_max = size.x() - 1;
@@ -114,7 +205,7 @@ mod private {
         let world = World::new(5, 4);
         let coord = Coord::new(3, 2);
         let coord = world.convert(&coord);
-        assert_eq!(coord.x_y(),(3,1));
+        assert_eq!(coord.x_y(), (3, 1));
     }
     #[test]
     fn coord() {
@@ -158,6 +249,54 @@ mod private {
 #[cfg(test)]
 mod public {
     use super::*;
+    #[test]
+    pub fn camera() {
+        let world = World::new(5, 4);
+        let (x, y) = (2, 2);
+        let (radius_x, radius_y) = (2, 1);
+        let mut view = Vec::new();
+        /*
+        p****
+        **P**
+        ****d
+        O****
+         */
+        // generate from top to bottom
+        for i_y in ((y - radius_y)..=(y + radius_y)).rev() {
+            let mut line = Vec::new();
+            for i_x in (x - radius_x)..=(x + radius_x) {
+                let coord = world.coord(i_x, i_y).unwrap();
+                line.push(world.get(&coord));
+            }
+            view.push(line);
+        }
+        let coord = world.coord(x, y).unwrap();
+        let camera = world.camera(&coord, radius_x, radius_y);
+        assert_eq!(camera, view);
+
+        let camera_x = world.camera(&coord, radius_x + 1, radius_y);
+        let view_x = view.to_owned();
+
+        let insert_space = |mut view: Vec<Vec<char>>| {
+            for line in &mut view {
+                line.insert(0, ' ');
+                line.push(' ')
+            }
+            view
+        };
+        let view_x = insert_space(view_x);
+        assert_eq!(camera_x, view_x);
+
+        let camera_y = world.camera(&coord, radius_x, radius_y + 1);
+        let mut view_y = view.to_owned();
+        view_y.insert(0, vec![' '; view_y[0].len()]);
+        view_y.push(world.ground()[3].to_owned());
+        assert_eq!(camera_y, view_y);
+
+        let camera_x_y = world.camera(&coord, radius_x + 1, radius_y + 1);
+        let view_x_y = insert_space(view_y);
+        assert_eq!(camera_x_y, view_x_y);
+    }
     #[test]
     pub fn contain() {
         let world = World::new(5, 4);
