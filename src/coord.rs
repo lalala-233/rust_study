@@ -30,7 +30,7 @@ mod public {
     pub fn x() {
         let x = 5;
         let y = 4;
-        let coord = Coord { x, y };
+        let coord = Coord::new(x,y);
         assert_eq!(x, coord.x());
     }
     #[test]
@@ -47,7 +47,7 @@ mod public {
     pub fn y() {
         let x = 5;
         let y = 4;
-        let coord = Coord { x, y };
+        let coord = Coord::new(x,y);
         assert_eq!(y, coord.y());
     }
 }
