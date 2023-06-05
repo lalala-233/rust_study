@@ -41,9 +41,6 @@ impl World {
         // row first, column second
         self.ground[coord.y()][coord.x()]
     }
-    fn ground(&self) -> &Vec<Vec<char>> {
-        &self.ground
-    }
     fn set(&mut self, coord: &Coord, target: char) {
         /*
         [*****]
@@ -108,13 +105,11 @@ impl World {
         let (top, bottom) = (bottom, top);
         let (top_extension, bottom_extension) = (bottom_extension, top_extension);
 
-        let mut camera = Vec::new();
-
         //generate from top to bottom
-        for line in self.ground[top..=bottom].iter() {
-            let line = line[left..=right].to_owned();
-            camera.push(line);
-        }
+        let mut camera: Vec<Vec<char>> = self.ground[top..=bottom]
+            .iter()
+            .map(|line| line[left..=right].to_owned())
+            .collect();
         //generate spaces
         if top_extension > 0 {
             camera.splice(
@@ -153,6 +148,9 @@ impl World {
         let x_max = size.x() - 1;
         let y_max = size.y() - 1;
         coord.x() <= x_max && coord.y() <= y_max
+    }
+    pub fn ground(&self) -> &Vec<Vec<char>> {
+        &self.ground
     }
     pub fn new(length: usize, width: usize) -> Self {
         /*
@@ -240,11 +238,6 @@ mod private {
         let value = world.get(&coord);
         assert_eq!(value, 'x');
     }
-    #[test]
-    fn ground() {
-        let world = World::new(5, 4);
-        assert_eq!(world.ground(), &world.ground);
-    }
 }
 #[cfg(test)]
 mod public {
@@ -315,6 +308,11 @@ mod public {
         assert!(!world.contain(&can_not_contain));
         let can_not_contain = Coord::new(5, 4);
         assert!(!world.contain(&can_not_contain));
+    }
+    #[test]
+    fn ground() {
+        let world = World::new(5, 4);
+        assert_eq!(world.ground(), &world.ground);
     }
     #[test]
     pub fn new() {
