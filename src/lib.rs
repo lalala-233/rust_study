@@ -1,92 +1,75 @@
-use std::{env, error::Error, fs, process};
-pub struct Config {
-    query: String,
-    path: String,
-    ignore_case: bool,
-}
-impl Config {
-    pub fn build(args: &[String]) -> Self {
-        Config::new(args).unwrap_or_else(|err| {
-            eprintln!("参数错误：{err}");
-            process::exit(1);
-        })
-    }
+use std::{
+    sync::{mpsc, Arc, Mutex},
+    thread,
+};
 
-    fn new(args: &[String]) -> Result<Self, &'static str> {
-        if args.len() < 3 {
-            Err("需要至少 3 个参数")
-        } else {
-            Ok(Config {
-                query: args[1].clone(),
-                path: args[2].clone(),
-                ignore_case: env::var("ignore_case").is_ok(),
-            })
+pub struct ThreadPool {
+    workers: Vec<Worker>,
+    sender: Option<mpsc::Sender<Job>>,
+}
+impl ThreadPool {
+    pub fn execute<Func>(&self, func: Func)
+    where
+        Func: FnOnce() + Send + 'static,
+    {
+        let job = Box::new(func);
+        self.sender.as_ref().unwrap().send(job).unwrap();
+    }
+    /// 创建线程池。
+    ///
+    /// # Panics
+    ///
+    /// `new` 函数在 size 为 0 时会 panic。
+    pub fn new(size: usize) -> Self {
+        assert!(size != 0);
+        let (sender, receiver) = mpsc::channel();
+
+        let receiver = Arc::new(Mutex::new(receiver));
+
+        let mut workers = Vec::with_capacity(size);
+        for id in 0..size {
+            workers.push(Worker::new(id, Arc::clone(&receiver)));
+        }
+        Self {
+            workers,
+            sender: Some(sender),
+        }
+    }
+}
+impl Drop for ThreadPool {
+    fn drop(&mut self) {
+        self.sender.take();
+        for worker in &mut self.workers {
+            println!("Shutting down worker {}", worker.id);
+            if let Some(worker) = worker.thread.take() {
+                worker.join().unwrap();
+            }
         }
     }
 }
 
-pub fn run(config: &Config) -> Result<(), Box<dyn Error>> {
-    let content = fs::read_to_string(&config.path)?;
-    if config.ignore_case {
-        for line in search_case_insensitive(&config.query, &content) {
-            println!("{line}");
-        }
-    } else {
-        for line in search_case_sensitive(&config.query, &content) {
-            println!("{line}");
-        }
-    }
-    Ok(())
+struct Worker {
+    id: usize,
+    thread: Option<thread::JoinHandle<()>>,
 }
-pub fn search_case_sensitive<'a>(query: &str, content: &'a str) -> Vec<&'a str> {
-    let mut result = Vec::new();
-    for line in content.lines() {
-        if line.contains(query) {
-            result.push(line);
-        }
-    }
-    result
-}
-pub fn search_case_insensitive<'a>(query: &str, content: &'a str) -> Vec<&'a str> {
-    let query = &query.to_lowercase();
-    let mut result = Vec::new();
-    for line in content.lines() {
-        if line.to_lowercase().contains(query) {
-            result.push(line);
-        }
-    }
-    result
-}
-#[cfg(test)]
-mod test {
-    use super::*;
+impl Worker {
+    fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Self {
+        let thread = thread::spawn(move || loop {
+            let message = receiver.lock().unwrap().recv();
 
-    #[test]
-    fn case_insensitive() {
-        let query = "oh";
-        let content = "\
-你好！
-Hello, thank you!
-Oh, hello!
-床前明月光，疑是地上霜。";
-        assert_eq!(vec!["Oh, hello!"], search_case_insensitive(query, content));
-    }
-    #[test]
-    fn case_sensitive() {
-        let query = "床前明月光，";
-        let content = "\
-你好！
-Hello, thank you!
-Oh, hello!
-床前明月光，疑是地上霜。";
-        assert_eq!(
-            vec!["床前明月光，疑是地上霜。"],
-            search_case_sensitive(query, content)
-        );
-        let query = "Hello";
-        assert_eq!(
-            vec!["Hello, thank you!"],
-            search_case_sensitive(query, content)
-        );
+            if let Ok(job) = message {
+                println!("Worker {id} got a Job!");
+                job();
+            } else {
+                println!("Worker {id} is disconnected! Will shutting down.");
+                break;
+            }
+        });
+        Self {
+            id,
+            thread: Some(thread),
+        }
     }
 }
+
+type Job = Box<dyn FnOnce() + Send>;
