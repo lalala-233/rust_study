@@ -1,7 +1,5 @@
-mod coord;
-pub use coord::Coord;
-
 mod world;
+pub use world::coord::Coord;
 pub use world::World;
 
 mod player;
