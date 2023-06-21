@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Coord {
     x: usize,
     y: usize,
@@ -18,7 +18,7 @@ impl Coord {
     }
 }
 #[cfg(test)]
-mod public {
+pub mod public {
     use self::default::default;
     use crate::Coord;
     pub mod default {

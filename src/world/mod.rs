@@ -11,14 +11,13 @@ pub struct World {
 }
 impl World {
     // private
-    fn contain(&self, coord: &Coord) -> bool {
-        let (x, y) = self.size().x_y();
-        let (x_max, y_max) = (x - 1, y - 1);
+    fn contain(&self, coord: Coord) -> bool {
+        let (x_max, y_max) = self.right_top().x_y();
         coord.x() <= x_max && coord.y() <= y_max
     }
-    fn size(&self) -> Coord {
-        let length = self.ground[0].len();
-        let width = self.ground.len();
+    fn right_top(&self) -> Coord {
+        let length = self.ground[0].len() - 1;
+        let width = self.ground.len() - 1;
         Coord::new(length, width)
     }
 }
@@ -26,7 +25,7 @@ impl World {
     // public
     pub fn coord(&self, x: usize, y: usize) -> Result<Coord, &'static str> {
         let coord = Coord::new(x, y);
-        if self.contain(&coord) {
+        if self.contain(coord) {
             Ok(coord)
         } else {
             Err("坐标在世界外！")
@@ -47,7 +46,7 @@ impl Index<Coord> for World {
 impl Index<usize> for World {
     type Output = Line;
     fn index(&self, index: usize) -> &Self::Output {
-        let y_max = self.size().y() - 1;
+        let y_max = self.right_top().y();
         &self.ground[y_max - index]
     }
 }
@@ -60,19 +59,19 @@ mod private {
         let (world, length, width) = default();
         let (x, y) = (length - 1, width - 1);
         let can_contain = Coord::new(x, y);
-        assert!(world.contain(&can_contain));
+        assert!(world.contain(can_contain));
         let can_not_contain = Coord::new(x + 1, y);
-        assert!(!world.contain(&can_not_contain));
+        assert!(!world.contain(can_not_contain));
         let can_not_contain = Coord::new(x, y + 1);
-        assert!(!world.contain(&can_not_contain));
+        assert!(!world.contain(can_not_contain));
         let can_not_contain = Coord::new(x + 1, y + 1);
-        assert!(!world.contain(&can_not_contain));
+        assert!(!world.contain(can_not_contain));
     }
     #[test]
-    pub fn size() {
+    pub fn right_top() {
         let (world, length, width) = default();
-        let size = world.size();
-        assert_eq!(size.x_y(), (length, width));
+        let size = world.right_top();
+        assert_eq!(size.x_y(), (length - 1, width - 1));
     }
 }
 #[cfg(test)]
@@ -83,8 +82,8 @@ pub mod public {
         use rand::{thread_rng, Rng};
         pub fn default() -> (World, usize, usize) {
             let (length, width) = (
-                thread_rng().gen_range(11..45),
-                thread_rng().gen_range(14..19),
+                thread_rng().gen_range(11..114),
+                thread_rng().gen_range(19..191),
             );
             let world = World::new(length, width);
             (world, length, width)

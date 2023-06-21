@@ -23,7 +23,7 @@ impl Line {
 impl PartialEq for Line {
     fn eq(&self, other: &Self) -> bool {
         if self.len() == other.len() {
-            let (left, mut right) = (self.iter(), other.iter());       
+            let (left, mut right) = (self.iter(), other.iter());
             for left in left {
                 let right = right.next().unwrap();
                 if left != right {
@@ -37,12 +37,26 @@ impl PartialEq for Line {
     }
 }
 #[cfg(test)]
-mod public {
-    use super::Line;
+pub mod public {
+    use self::default::default;
+
+    pub mod default {
+        use crate::world::line::Line;
+        use rand::{thread_rng, Rng};
+        pub fn default() -> (Line, usize) {
+            let length = thread_rng().gen_range(11..114);
+            let line = Line::new(length);
+            (line, length)
+        }
+    }
+    #[test]
+    pub fn eq() {
+        let (line, length) = default();
+        
+    }
     #[test]
     pub fn new() {
-        let length = 114;
-        let line_length = Line::new(length);
-        assert_eq!(length, line_length.tiles.len())
+        let (line, length) = default();
+        assert_eq!(length, line.len());
     }
 }
