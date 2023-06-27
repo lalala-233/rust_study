@@ -39,7 +39,7 @@ impl PartialEq for Line {
 #[cfg(test)]
 pub mod public {
     use self::default::default;
-
+    use crate::world::line::Line;
     pub mod default {
         use crate::world::line::Line;
         use rand::{thread_rng, Rng};
@@ -50,9 +50,14 @@ pub mod public {
         }
     }
     #[test]
+    pub fn deref() {
+        let (line, length) = default();
+        assert_eq!(line.len(), length);//line.len() is line.deref().len()
+    }
+    #[test]
     pub fn eq() {
         let (line, length) = default();
-        
+        assert_eq!(Line::new(length), line);
     }
     #[test]
     pub fn new() {
