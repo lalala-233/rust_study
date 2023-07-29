@@ -1,6 +1,7 @@
 use std::fmt::Debug;
 
 pub mod default;
+mod bomb;
 
 pub trait Tile: Debug {
     fn name(&self) -> &str;

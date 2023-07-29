@@ -1,5 +1,5 @@
-use std::env;
 use bevy::prelude::*;
+use game::is_debug;
 
 fn main() {
     let mut app = App::new();
@@ -12,7 +12,10 @@ fn main() {
         ..default()
     }))
     .add_systems(Startup, camera_setup);
-    if_debug(&mut app);
+    if is_debug() {
+        use bevy_inspector_egui::quick::WorldInspectorPlugin;
+        app.add_plugins(WorldInspectorPlugin::new());
+    };
     app.run();
 }
 
@@ -20,11 +23,3 @@ fn camera_setup(mut commands: Commands) {
     commands.spawn(Camera2dBundle::default());
 }
 
-fn if_debug(app: &mut App) {
-    let mut args = env::args();
-    args.next();
-    if args.next() == Some("debug".to_string()) {
-        use bevy_inspector_egui::quick::WorldInspectorPlugin;
-        app.add_plugins(WorldInspectorPlugin::new());
-    }
-}
