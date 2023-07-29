@@ -16,9 +16,9 @@ impl World {
         coord.x() <= x_max && coord.y() <= y_max
     }
     fn right_top(&self) -> Coord {
-        let length = self.ground[0].len() - 1;
-        let width = self.ground.len() - 1;
-        Coord::new(length, width)
+        let width = self.ground[0].len() - 1;
+        let height = self.ground.len() - 1;
+        Coord::new(width, height)
     }
 }
 impl World {
@@ -31,9 +31,15 @@ impl World {
             Err("坐标在世界外！")
         }
     }
-    pub fn new(length: usize, width: usize) -> Self {
-        let ground = (0..width).map(|_| Line::new(length)).collect();
+    pub fn height(&self) -> usize {
+        self.ground.len()
+    }
+    pub fn new(width: usize, height: usize) -> Self {
+        let ground = (0..height).map(|_| Line::new(width)).collect();
         Self { ground }
+    }
+    pub fn width(&self) -> usize {
+        self.ground[0].len()
     }
 }
 impl Index<Coord> for World {
@@ -56,8 +62,8 @@ mod private {
     use crate::{world::public::default::default, Coord};
     #[test]
     pub fn contain() {
-        let (world, length, width) = default();
-        let (x, y) = (length - 1, width - 1);
+        let (world, width, height) = default();
+        let (x, y) = (width - 1, height - 1);
         let can_contain = Coord::new(x, y);
         assert!(world.contain(can_contain));
         let can_not_contain = Coord::new(x + 1, y);
@@ -69,9 +75,9 @@ mod private {
     }
     #[test]
     pub fn right_top() {
-        let (world, length, width) = default();
+        let (world, width, height) = default();
         let size = world.right_top();
-        assert_eq!(size.x_y(), (length - 1, width - 1));
+        assert_eq!(size.x_y(), (width - 1, height - 1));
     }
 }
 #[cfg(test)]
@@ -81,33 +87,38 @@ pub mod public {
         use crate::World;
         use rand::{thread_rng, Rng};
         pub fn default() -> (World, usize, usize) {
-            let (length, width) = (
+            let (width, height) = (
                 thread_rng().gen_range(11..114),
                 thread_rng().gen_range(19..191),
             );
-            let world = World::new(length, width);
-            (world, length, width)
+            let world = World::new(width, height);
+            (world, width, height)
         }
     }
     #[test]
     pub fn coord() {
-        let (world, length, width) = default();
+        let (world, width, height) = default();
         //索引需要减 1
-        let coord = world.coord(length - 1, width - 1);
+        let coord = world.coord(width - 1, height - 1);
         assert!(coord.is_ok());
-        let coord = world.coord(length, width - 1);
+        let coord = world.coord(width, height - 1);
         assert!(coord.is_err());
-        let coord = world.coord(length - 1, width);
+        let coord = world.coord(width - 1, height);
         assert!(coord.is_err());
-        let coord = world.coord(length, width);
+        let coord = world.coord(width, height);
         assert!(coord.is_err());
     }
     #[test]
+    pub fn height() {
+        let (world, _width, height) = default();
+        assert_eq!(height, world.height());
+    }
+    #[test]
     pub fn index_coord() {
-        let (world, length, width) = default();
-        let (length, width) = (length - 1, width - 1);
-        for y in 0..=width {
-            for x in 0..=length {
+        let (world, width, height) = default();
+        let (width, height) = (width - 1, height - 1);
+        for y in 0..=height {
+            for x in 0..=width {
                 let coord = world.coord(x, y).unwrap();
                 assert_eq!(*world[y][x], *world[coord]);
             }
@@ -115,16 +126,21 @@ pub mod public {
     }
     #[test]
     pub fn index_usize() {
-        let (world, _length, width) = default();
-        for i in 0..width {
+        let (world, _width, height) = default();
+        for i in 0..height {
             //索引需要减 1
-            assert_eq!(world.ground[width - i - 1], world[i]);
+            assert_eq!(world.ground[height - i - 1], world[i]);
         }
     }
     #[test]
     pub fn new() {
-        let (world, length, width) = default();
-        assert_eq!(length, world.ground[0].len());
-        assert_eq!(width, world.ground.len());
+        let (world, width, height) = default();
+        assert_eq!(width, world.ground[0].len());
+        assert_eq!(height, world.ground.len());
+    }
+    #[test]
+    pub fn width() {
+        let (world, width, _height) = default();
+        assert_eq!(width, world.width());
     }
 }

@@ -1753,7 +1753,7 @@ dependencies = [
 
 [[package]]
 name = "game"
-version = "0.3.3"
+version = "0.3.4"
 dependencies = [
  "bevy",
  "bevy-inspector-egui",

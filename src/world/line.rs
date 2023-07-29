@@ -12,9 +12,9 @@ impl Deref for Line {
 }
 impl Line {
     //public
-    pub fn new(length: usize) -> Self {
-        let mut tiles: Vec<Box<dyn Tile>> = Vec::with_capacity(length);
-        for _ in 0..length {
+    pub fn new(width: usize) -> Self {
+        let mut tiles: Vec<Box<dyn Tile>> = Vec::with_capacity(width);
+        for _ in 0..width {
             tiles.push(Box::new(DefaultTile::new()))
         }
         Line { tiles }
@@ -44,24 +44,24 @@ pub mod public {
         use crate::world::line::Line;
         use rand::{thread_rng, Rng};
         pub fn default() -> (Line, usize) {
-            let length = thread_rng().gen_range(11..114);
-            let line = Line::new(length);
-            (line, length)
+            let width = thread_rng().gen_range(11..114);
+            let line = Line::new(width);
+            (line, width)
         }
     }
     #[test]
     pub fn deref() {
-        let (line, length) = default();
-        assert_eq!(line.len(), length);//line.len() is line.deref().len()
+        let (line, width) = default();
+        assert_eq!(line.len(), width);//line.len() is line.deref().len()
     }
     #[test]
     pub fn eq() {
-        let (line, length) = default();
-        assert_eq!(Line::new(length), line);
+        let (line, width) = default();
+        assert_eq!(Line::new(width), line);
     }
     #[test]
     pub fn new() {
-        let (line, length) = default();
-        assert_eq!(length, line.len());
+        let (line, width) = default();
+        assert_eq!(width, line.len());
     }
 }
