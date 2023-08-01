@@ -9,7 +9,7 @@ pub trait Tile: Debug {
     fn name(&self) -> &str;
     fn tile(&self) -> char;
     fn can_stepped(&self) -> bool;
-    fn when_stepped(&self, player: &mut Player) {}
+    fn when_stepped(&self, _player: &mut Player) {}
 }
 impl PartialEq for dyn Tile {
     fn eq(&self, other: &Self) -> bool {

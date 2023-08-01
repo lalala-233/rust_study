@@ -36,6 +36,7 @@ impl PartialEq for Line {
         }
     }
 }
+impl Eq for Line {}
 #[cfg(test)]
 pub mod public {
     use self::default::default;
@@ -52,7 +53,7 @@ pub mod public {
     #[test]
     pub fn deref() {
         let (line, width) = default();
-        assert_eq!(line.len(), width);//line.len() is line.deref().len()
+        assert_eq!(line.len(), width); //line.len() is line.deref().len()
     }
     #[test]
     pub fn eq() {

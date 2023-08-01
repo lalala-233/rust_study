@@ -5,7 +5,7 @@ use std::ops::Index;
 
 use self::{line::Line, tile::Tile};
 use crate::Coord;
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct World {
     ground: Vec<Line>,
 }
