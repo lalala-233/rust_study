@@ -1,12 +1,10 @@
+pub mod game;
+mod player;
 mod world;
+pub use game::Game;
+pub use player::Player;
 pub use world::coord::Coord;
 pub use world::World;
-
-mod player;
-pub use player::Player;
-
-pub mod game;
-pub use crate::game::Game;
 
 pub fn is_debug() -> bool {
     let mut args = std::env::args();

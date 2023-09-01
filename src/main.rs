@@ -1,7 +1,11 @@
 use bevy::prelude::*;
-use game::is_debug;
+use my_game::is_debug;
 
 fn main() {
+    run()
+}
+
+fn run() {
     let mut app = App::new();
     app.add_plugins(DefaultPlugins.set(WindowPlugin {
         primary_window: Some(Window {
@@ -22,4 +26,3 @@ fn main() {
 fn camera_setup(mut commands: Commands) {
     commands.spawn(Camera2dBundle::default());
 }
-

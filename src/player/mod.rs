@@ -28,10 +28,9 @@ impl Player {
 }
 #[cfg(test)]
 pub mod public {
-    use std::rc::Rc;
-
     use self::default::default;
     use crate::Player;
+    use std::rc::Rc;
     pub mod default {
         use crate::{Player, World};
         use rand::{thread_rng, Rng};

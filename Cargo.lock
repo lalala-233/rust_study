@@ -1752,17 +1752,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "game"
-version = "0.3.6"
-dependencies = [
- "bevy",
- "bevy-inspector-egui",
- "colored",
- "rand",
- "serde",
-]
-
-[[package]]
 name = "gethostname"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2422,6 +2411,17 @@ dependencies = [
  "log",
  "wasi",
  "windows-sys 0.48.0",
+]
+
+[[package]]
+name = "my_game"
+version = "0.3.7"
+dependencies = [
+ "bevy",
+ "bevy-inspector-egui",
+ "colored",
+ "rand",
+ "serde",
 ]
 
 [[package]]
