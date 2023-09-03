@@ -1,5 +1,6 @@
 pub mod game;
 mod player;
+mod tag;
 mod world;
 pub use game::Game;
 pub use player::Player;

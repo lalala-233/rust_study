@@ -9,12 +9,6 @@ const BOMBNAME: &str = "Bomb";
 struct Bomb {}
 impl BombDLC for Bomb {}
 impl Tile for Bomb {
-    fn can_stepped(&self) -> bool {
-        true
-    }
-    fn when_stepped(&self, player: &mut crate::Player) {
-        player.die()
-    }
     fn name(&self) -> &str {
         BOMBNAME
     }

@@ -16,7 +16,4 @@ impl Tile for DefaultTile {
     fn name(&self) -> &str {
         NAME
     }
-    fn can_stepped(&self) -> bool {
-        true
-    }
 }
