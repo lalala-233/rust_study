@@ -1,20 +1,10 @@
-use serde::{Deserialize, Serialize};
-#[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone)]
-pub struct Text(Vec<String>);
-#[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
-pub struct Content {
-    paragraph: Vec<Text>,
-}
-#[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
-pub struct Config {
-    content: Content,
-}
+extern crate font_loader as fonts;
+use fonts::system_fonts;
+
 fn main() {
-    let text = Text(vec!["114".to_string(), "514".to_string()]);
-    let content = Content {
-        paragraph: vec![text; 2],
-    };
-    let config = Config { content };
-    let x = toml::to_string(&config).unwrap();
-    println!("{}", x);
+    // 创建一个 monospace 字体的属性
+    let mut property = system_fonts::FontPropertyBuilder::new().build();
+    let name = system_fonts::query_specific(&mut property);
+    // 从系统中获取最匹配的字体
+    println!("{:?}", name[0]);
 }
