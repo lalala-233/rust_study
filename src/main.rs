@@ -1,22 +1,20 @@
-use rand::{thread_rng, Rng};
-
-trait print {
-    fn print() {
-        println!("default!")
-    }
+use serde::{Deserialize, Serialize};
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone)]
+pub struct Text(Vec<String>);
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
+pub struct Content {
+    paragraph: Vec<Text>,
 }
-struct default__;
-impl print for default__ {}
-struct other;
-impl print for other {
-    fn print() {
-        println!("other")
-    }
-}
-fn run_print<T: print>(some: T) {
-print::print();
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
+pub struct Config {
+    content: Content,
 }
 fn main() {
-    run_print(default__ {});
-    run_print(other {});
+    let text = Text(vec!["114".to_string(), "514".to_string()]);
+    let content = Content {
+        paragraph: vec![text; 2],
+    };
+    let config = Config { content };
+    let x = toml::to_string(&config).unwrap();
+    println!("{}", x);
 }
