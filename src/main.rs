@@ -1,10 +1,13 @@
-extern crate font_loader as fonts;
-use fonts::system_fonts;
+use font_kit::{family_name::FamilyName::*, properties::Properties, source::SystemSource};
 
 fn main() {
-    // 创建一个 monospace 字体的属性
-    let mut property = system_fonts::FontPropertyBuilder::new().build();
-    let name = system_fonts::query_specific(&mut property);
-    // 从系统中获取最匹配的字体
-    println!("{:?}", name[0]);
+    for family in [Serif, SansSerif, Monospace, Cursive, Fantasy] {
+        let font = SystemSource::new()
+            .select_best_match(&[family], &Properties::new())
+            .unwrap()
+            .load()
+            .unwrap()
+            .full_name();
+        println!("The default font path is: {:?}", font);
+    }
 }

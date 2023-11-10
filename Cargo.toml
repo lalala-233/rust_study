@@ -6,4 +6,4 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
 name = { path = "./name" }
-font-loader = "0.11.0"
+font-kit = "0.11"
