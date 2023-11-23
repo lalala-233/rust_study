@@ -9,7 +9,7 @@ fn run() {
     let mut app = App::new();
     app.add_plugins(DefaultPlugins.set(WindowPlugin {
         primary_window: Some(Window {
-            title: "Mine Sweeper!".to_string(),
+            title: "lalala!".to_string(),
             resolution: (1920., 1080.).into(),
             ..default()
         }),
