@@ -1,6 +1,6 @@
 use std::any::Any;
 use std::fmt::Debug;
-pub use struct_name::Name;
+pub use tag::Name;
 pub mod owner;
 pub mod tile;
 pub mod walkable;

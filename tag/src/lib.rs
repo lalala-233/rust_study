@@ -1,4 +1,4 @@
-pub use struct_name_derive::Name;
+pub use tag_derive::Name;
 pub trait Name {
     fn name(&self) -> &'static str;
 }

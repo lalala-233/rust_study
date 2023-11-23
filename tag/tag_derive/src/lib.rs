@@ -2,16 +2,16 @@ use proc_macro::TokenStream;
 use quote::quote;
 
 #[proc_macro_derive(Name)]
-pub fn struct_name_derive(input: TokenStream) -> TokenStream {
+pub fn tag_derive(input: TokenStream) -> TokenStream {
     // Construct a representation of Rust code as a syntax tree
     // that we can manipulate
     let ast = syn::parse(input).unwrap();
 
     // Build the trait implementation
-    impl_struct_name(&ast)
+    impl_tag(&ast)
 }
 
-fn impl_struct_name(ast: &syn::DeriveInput) -> TokenStream {
+fn impl_tag(ast: &syn::DeriveInput) -> TokenStream {
     let name = &ast.ident;
     let gen = quote! {
         impl Name for #name {
